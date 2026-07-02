@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+.DS_Store
+
+# Generated plots (regenerate by re-running digit_recognizer.py)
+sample_digits.png
+training_curves.png
+confusion_matrix.png
+misclassified_examples.png
+my_prediction.png
+
+# Keep the trained model tracked so the Streamlit app works out of the box.
+# If it grows past ~50MB, use Git LFS instead of committing it directly.
+# digit_recognizer_model.keras
