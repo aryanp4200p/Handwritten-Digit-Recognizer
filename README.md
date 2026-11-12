@@ -2,15 +2,7 @@
 
 A web-based handwritten digit recognition application that uses a **Convolutional Neural Network (CNN)** trained on the **MNIST dataset** to classify handwritten digits from **0 to 9**. Built with Python, TensorFlow/Keras, and Streamlit.
 
-[Live Demo](https://handwritten-digit-recognizer-aycp.onrender.com/)
-
 Draw a digit on the canvas, click **Predict**, and view the predicted digit, confidence score, and probability distribution.
-
-## Live Demo
-
-**Try the application:** https://handwritten-digit-recognizer-aycp.onrender.com/
-
-The app is deployed on **Render**. It may take a little time to start if the free service has been inactive.
 
 ## Features
 
@@ -137,8 +129,6 @@ The project includes a `render.yaml` Blueprint configuration for Render.
 6. Open the public URL after deployment completes.
 
 The configured start command runs Streamlit on Render's assigned port and binds it to `0.0.0.0`.
-
-**Deployed application:** https://handwritten-digit-recognizer-aycp.onrender.com/
 
 ## Evaluation and Limitations
 
