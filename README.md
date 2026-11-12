@@ -1,98 +1,156 @@
 # Handwritten Digit Recognizer (CNN)
 
-A convolutional neural network that classifies handwritten digits (0-9)
-using the MNIST dataset, built with TensorFlow/Keras.
+A web-based handwritten digit recognition application that uses a **Convolutional Neural Network (CNN)** trained on the **MNIST dataset** to classify handwritten digits from **0 to 9**. Built with Python, TensorFlow/Keras, and Streamlit.
 
-## Files
+[Live Demo](https://handwritten-digit-recognizer-aycp.onrender.com/)
+
+Draw a digit on the canvas, click **Predict**, and view the predicted digit, confidence score, and probability distribution.
+
+## Live Demo
+
+**Try the application:** https://handwritten-digit-recognizer-aycp.onrender.com/
+
+The app is deployed on **Render**. It may take a little time to start if the free service has been inactive.
+
+## Features
+
+- **Interactive drawing canvas:** Draw a digit using a mouse or touchscreen.
+- **CNN-based classification:** Predicts one of the ten MNIST digit classes (0–9).
+- **Confidence score:** Displays the confidence of the predicted class.
+- **Class probability chart:** Visualizes the model's output probabilities for all ten digits.
+- **Cached model loading:** Loads the trained model once using Streamlit resource caching.
+
+## Project Files
 
 | File | Purpose |
 |---|---|
-| `digit_recognizer.py` | Loads MNIST, preprocesses data, builds/trains/evaluates the CNN, saves the model and all plots |
-| `predict_custom_image.py` | Loads the saved model and predicts the digit in *your own* handwritten image |
+| `app.py` | Streamlit interface, drawing canvas, image preprocessing, and digit prediction |
+| `digit_recognizer_model.keras` | Pre-trained CNN model used for inference |
 | `requirements.txt` | Python dependencies |
+| `render.yaml` | Render deployment configuration |
+| `runtime.txt` | Python runtime specification |
+| `.python-version` | Python version configuration |
+| `.gitignore` | Files excluded from Git |
 
-## How to run
+> **Note:** The repository currently contains the Streamlit inference application and the saved model. It does not include separate `digit_recognizer.py` training or `predict_custom_image.py` scripts.
 
-### Option A — Google Colab (recommended, free GPU, zero setup)
-1. Go to [colab.research.google.com](https://colab.research.google.com), new notebook.
-2. Paste the contents of `digit_recognizer.py` into a cell and run it (TensorFlow is preinstalled).
-3. To test your own handwriting: upload an image via the folder icon on the left, then run `predict_custom_image.py` in a new cell, e.g. `!python predict_custom_image.py my_digit.png`.
+## Tech Stack
 
-### Option B — Locally
+| Technology | Purpose |
+|---|---|
+| Python | Application logic |
+| TensorFlow / Keras | Loads and runs the CNN model |
+| Streamlit | Web application interface |
+| streamlit-drawable-canvas | Interactive drawing canvas |
+| NumPy | Image array processing and prediction handling |
+| Pillow (PIL) | Image conversion and resizing |
+
+## How It Works
+
+1. **Draw:** The user draws a single digit on the canvas.
+2. **Capture:** The canvas provides the drawing as an RGBA image.
+3. **Grayscale conversion:** The image is converted to grayscale.
+4. **Resize:** The image is resized to **28 × 28 pixels**, matching the MNIST input dimensions.
+5. **Normalize:** Pixel values are scaled from 0–255 to 0–1.
+6. **Reshape:** The image is reshaped to `(1, 28, 28, 1)` for the CNN input.
+7. **Predict:** The trained model returns probabilities for the ten digit classes.
+8. **Display:** The app selects the class with the highest probability and displays the predicted digit, confidence, and probability chart.
+
+## CNN Concepts Demonstrated
+
+### Why CNN instead of a plain neural network?
+
+A CNN is designed to process image data. Its convolutional filters learn local visual patterns such as edges, curves, and loops. These features help the network recognize digit shapes. Pooling layers reduce the spatial size of feature maps and computation, while dense layers use the extracted features to classify the image.
+
+A fully connected network treats pixels more independently and can require many more parameters. CNNs are generally more effective for image recognition because they learn spatial patterns.
+
+### Important CNN layers
+
+- **Conv2D:** Applies filters across the image to detect features such as edges, curves, and shapes.
+- **BatchNormalization:** Normalizes layer activations to help make training more stable.
+- **MaxPooling2D:** Reduces feature-map dimensions while retaining strong feature responses.
+- **Dropout:** Randomly disables some neurons during training to help reduce overfitting.
+- **Dense:** Combines learned features for classification.
+- **Softmax:** Converts the final outputs into probabilities across the ten digit classes.
+
+### Image preprocessing
+
+MNIST images are grayscale images of size **28 × 28**. The application converts the canvas drawing to grayscale, resizes it to the same dimensions, normalizes its pixel values, and adds the batch and channel dimensions expected by the model.
+
+## Run Locally
+
+### 1. Clone the repository
+
 ```bash
-pip install -r requirements.txt
-python digit_recognizer.py                 # trains and evaluates the model
-python predict_custom_image.py my_digit.png  # test on your own photo
+git clone https://github.com/<your-username>/<repo-name>.git
+cd <repo-name>
 ```
 
-Training takes about 2-5 minutes on CPU, under a minute on GPU, and typically reaches **~99% test accuracy**.
+Replace the URL and folder name with your actual GitHub repository details.
 
-## What the project demonstrates
+### 2. Create a virtual environment (recommended)
 
-1. **Data preprocessing** — normalization (pixel values scaled to 0-1), reshaping for CNN input, one-hot encoding of labels.
-2. **CNN architecture** — three convolutional blocks (Conv2D → BatchNorm → MaxPooling) that progressively learn edges → strokes → digit shapes, followed by a dense classifier head with Dropout for regularization.
-3. **Training** — Adam optimizer, categorical cross-entropy loss, EarlyStopping and ReduceLROnPlateau callbacks to avoid overfitting and auto-tune the learning rate.
-4. **Evaluation** — test accuracy/loss, full classification report (precision/recall/F1 per digit), confusion matrix, and a look at misclassified examples.
-5. **Real-world testing** — a separate script to classify a photo of your own handwriting, including grayscale conversion and color inversion to match MNIST's white-on-black format.
-
-## Viva / presentation talking points
-
-**Why CNN instead of a plain neural network?**
-CNNs use convolutional filters that scan the image and detect local patterns (edges, curves, loops) regardless of where they appear in the image. A plain dense network would need to learn every pixel position independently, using far more parameters and generalizing worse to slight shifts or variations in handwriting.
-
-**What does each layer do?**
-- *Conv2D*: slides small filters (e.g. 3x3) across the image to detect features like edges or curves.
-- *BatchNormalization*: normalizes activations between layers, speeding up and stabilizing training.
-- *MaxPooling2D*: downsamples the feature map, keeping the strongest signals and reducing computation.
-- *Dropout*: randomly disables neurons during training to prevent overfitting.
-- *Dense (Softmax)*: the final layer outputs a probability for each of the 10 digit classes.
-
-**Why one-hot encode the labels?**
-Because the output layer produces a probability distribution over 10 classes; one-hot encoding turns a label like `3` into `[0,0,0,1,0,0,0,0,0,0]` so it can be compared to that distribution via cross-entropy loss.
-
-**How do you know the model isn't just memorizing?**
-The validation split (held out during training) and separate test set (never seen during training) both show comparable accuracy to training accuracy — if the model were overfitting, validation/test accuracy would lag well behind training accuracy. Dropout and EarlyStopping further guard against this.
-
-**What's the confusion matrix for?**
-It shows which digits get confused with each other (e.g. 4 vs 9, or 3 vs 5), which is more informative than a single accuracy number.
-
-**Possible extensions to mention if asked "how would you improve it?"**
-- Data augmentation (rotation, shifting, zoom) to make the model robust to messier handwriting.
-- A deeper architecture or transfer learning.
-- Deploying it as a live web app (e.g. a drawable canvas with Streamlit or Flask) where users draw a digit and get instant predictions.
-
-## Putting it on GitHub
+**Windows:**
 
 ```bash
-cd your-project-folder
-git init
-git add .
-git commit -m "Handwritten digit recognizer CNN"
-git branch -M main
-git remote add origin https://github.com/<your-username>/<repo-name>.git
-git push -u origin main
+python -m venv venv
+venv\Scripts\activate
 ```
-(Create the empty repo on github.com first — "New repository", no README/gitignore, so it doesn't conflict with what you're pushing.)
 
-Make sure `digit_recognizer_model.keras` is committed too (needed for the live demo below) — a MNIST CNN model file is typically only a few MB, well under GitHub's limits.
+**macOS / Linux:**
 
-## Hosting a live demo (Streamlit Community Cloud — free)
-
-`app.py` is a Streamlit web app: it shows a canvas you can draw a digit on and get an instant prediction from your trained model.
-
-1. Run `python digit_recognizer.py` once locally/in Colab to produce `digit_recognizer_model.keras`, and make sure it's in your repo.
-2. Push everything to GitHub (including `app.py` and the updated `requirements.txt`) as above.
-3. Go to [share.streamlit.io](https://share.streamlit.io), sign in with GitHub, click **New app**.
-4. Pick your repo, branch `main`, and set the main file path to `app.py`.
-5. Click **Deploy**. In a minute or two you'll get a public URL like `https://your-app-name.streamlit.app` that anyone can open and draw digits on.
-
-This live link is what you'd put on your resume/LinkedIn/portfolio — much stronger than a plain code repo.
-
-**To test locally before deploying:**
 ```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
+python -m pip install --upgrade pip
 pip install -r requirements.txt
+```
+
+### 4. Start the application
+
+```bash
 streamlit run app.py
 ```
 
-## Skills demonstrated (for your resume)
-Python · NumPy · TensorFlow/Keras · Convolutional Neural Networks · Image Preprocessing · Model Training & Evaluation · Data Visualization (Matplotlib/Seaborn) · Image Classification
+Open the local address printed in the terminal, usually:
+
+```text
+http://localhost:8501
+```
+
+Make sure `digit_recognizer_model.keras` remains in the project root because `app.py` loads the model from that location.
+
+## Deployment (Render)
+
+The project includes a `render.yaml` Blueprint configuration for Render.
+
+1. Push the project to a GitHub repository.
+2. Sign in to [Render](https://render.com/).
+3. Choose **New → Blueprint** and connect your repository.
+4. Render reads the settings from `render.yaml`.
+5. Review and deploy the web service.
+6. Open the public URL after deployment completes.
+
+The configured start command runs Streamlit on Render's assigned port and binds it to `0.0.0.0`.
+
+**Deployed application:** https://handwritten-digit-recognizer-aycp.onrender.com/
+
+## Evaluation and Limitations
+
+The application uses a model trained on the MNIST handwritten digit dataset. The app describes the model as achieving approximately **99% test accuracy** on MNIST. This benchmark is measured on the dataset and should not be interpreted as a guarantee of the same accuracy on every user drawing.
+
+Predictions can be less reliable when a drawing differs significantly from MNIST examples—for example, if the digit is off-center, unusually thin, rotated, or contains multiple digits.
+
+## Possible Improvements
+
+- Add image-upload support to recognize digits from photographs.
+- Improve preprocessing for off-center, rotated, or differently sized handwriting.
+- Add a training notebook or script with reproducible training and evaluation.
+- Display the top predicted classes with their probabilities.
+- Add data augmentation such as rotation, shifting, and zooming.
+- Evaluate performance on handwritten images beyond the MNIST test set.
